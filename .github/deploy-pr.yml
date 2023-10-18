@@ -1,0 +1,62 @@
+name: Build and Deploy PR
+concurrency: pull_request
+on:
+  pull_request:
+    branches:
+      - '**'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: ${{ secrets.AWS_ROLE_SESSION }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy
+        if: github.event.pull_request.state == 'open'
+        run: pnpm sst deploy --stage pr${{ github.event.number }}
+
+      - name: Remove
+        if: github.event.pull_request.state == 'closed'
+        run: pnpm sst remove --stage pr${{ github.event.number }}
