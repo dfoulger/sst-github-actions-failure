@@ -12,6 +12,10 @@ export function ApiStack({stack}: StackContext) {
                 bind: [A_SECRET_KEY, A_SECRET_CONNECTION],
             },
         },
+        customDomain: {
+            domainName: `${stack.stage}-api.test.sixstartech.com`,
+            hostedZone: "sixstartech.com",
+        },
     });
     const API_URL = api.customDomainUrl || api.url;
     return {API_URL};

@@ -12,5 +12,9 @@ export function SiteStack({stack}: StackContext) {
             secrets.A_SECRET_CONNECTION,
             A_TOPIC,
         ],
+        customDomain: {
+            domainName: `${stack.stage}.test.sixstartech.com`,
+            hostedZone: "sixstartech.com",
+        },
     });
 }
