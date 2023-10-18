@@ -18,5 +18,8 @@ export function ApiStack({stack}: StackContext) {
         },
     });
     const API_URL = api.customDomainUrl || api.url;
+    stack.addOutputs({
+        ApiUrl: API_URL,
+    });
     return {API_URL};
 }

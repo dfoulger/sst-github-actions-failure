@@ -17,4 +17,7 @@ export function SiteStack({stack}: StackContext) {
             hostedZone: "sixstartech.com",
         },
     });
+    stack.addOutputs({
+        SiteUrl: site.customDomainUrl || site.url,
+    });
 }
