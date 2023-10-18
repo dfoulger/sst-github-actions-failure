@@ -26,7 +26,29 @@ export function QueueStack({stack}: StackContext) {
         },
     });
 
+    const BQueue = new Queue(stack, "BQueue", {
+        cdk: {
+            queue: {
+                receiveMessageWaitTime: cdk.Duration.seconds(
+                    stack.stage === "prod" ? 5 : 20
+                ),
+            },
+        },
+        consumer: {
+            cdk: {
+                eventSource: {
+                    enabled: stack.stage === "prod"
+                }
+            },
+            function: {
+                bind: [A_SECRET_KEY, A_SECRET_CONNECTION],
+                handler: "packages/functions/src/lambda.handler",
+            },
+        },
+    });
+
     return {
-        A_QUEUE: AQueue
+        A_QUEUE: AQueue,
+        B_QUEUE: BQueue
     };
 }

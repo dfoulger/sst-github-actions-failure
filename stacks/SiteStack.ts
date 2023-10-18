@@ -4,13 +4,13 @@ import {TopicStack} from "./TopicStack";
 
 export function SiteStack({stack}: StackContext) {
     const secrets = use(SecretsStack);
-    const {A_TOPIC} = use(TopicStack);
+    const {B_TOPIC} = use(TopicStack);
     const site = new SvelteKitSite(stack, "site", {
         path: "packages/site",
         bind: [
             secrets.A_SECRET_KEY,
             secrets.A_SECRET_CONNECTION,
-            A_TOPIC,
+            B_TOPIC,
         ],
         customDomain: {
             domainName: `${stack.stage}.test.sixstartech.com`,
